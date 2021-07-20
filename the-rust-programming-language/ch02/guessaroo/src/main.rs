@@ -1,26 +1,35 @@
-use std::io;
 use rand::Rng;
+use std::cmp::Ordering;
+use std::io;
 
 fn main() {
-    let mut rng = rand::thread_rng();
-    let min = 1;
-    let max = 10;
-    let mut attempts = 3;
-    let mut guess = String::new();
-    let mut guessNumber: i32 = 0;
-    let answer = rng.gen_range(min..max+1);
+    println!("Guess the number!");
 
-    while attempts > 0 {
-        let prompt = format!("Guess a number between {} and {}.\nYou have {} attempt(s) left", min, max, attempts);
-        println!("{}", prompt);
-        io::stdin().read_line(&mut guess).expect("Failed to read line");
-        guessNumber = guess.split_whitespace().collect::<Vec<_>>()[0].parse().unwrap();
-        if (guessNumber == answer) {
-            println!("Congrats !! You have got the right answer");
-            break;
+    let secret_number = rand::thread_rng().gen_range(1..101);
+
+    loop {
+        println!("Please input your guess.");
+
+        let mut guess = String::new();
+
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("Failed to read line");
+
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue,
+        };
+
+        println!("You guessed: {}", guess);
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println!("Too small!"),
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal => {
+                println!("You win!");
+                break;
+            }
         }
-        guess.clear();
-        attempts -= 1;
     }
-    println!("Better luck next time. The lucky number is: {}", answer)
 }
